@@ -1,0 +1,24 @@
+version: '3.5'
+
+services:
+  svelte:
+    restart: always
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    image: wsi-client:1.0.0
+    volumes: 
+      - /home/ubuntu/docker_share/data:/data
+      - ./client/src:/app/src
+    ports:
+      - 5000:5000
+      
+    networks:
+      - web_net
+
+networks:
+  web_net:
+    driver: bridge
+    #attachable: true
+    external: true
+    #internal: true

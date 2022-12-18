@@ -1,0 +1,56 @@
+version: '3.5'
+
+services: 
+  deepzoom-server:
+    build: 
+        context: ./server
+        dockerfile: ./Dockerfile
+    image: wsi-server:1.0.0
+    container_name: deepzoom-server
+    shm_size: '120gb'
+    ports:
+      - 3000:3000
+    command: python deepzoom_multiserver.py
+    restart: always        
+    volumes: 
+        - ./server/src:/workspace
+        - /home/ubuntu/docker_share/data:/data
+        - /home/ubuntu/docker_share/model:/model
+    environment: 
+        - TZ=Asia/Seoul
+        
+    stdin_open: true
+    tty: true
+    extra_hosts:
+            - "host.docker.internal:host-gateway"
+    logging: 
+        driver: local
+        options:
+            max-size: 10m
+    networks:
+        - web_net
+  
+  deepzoom-client:
+    restart: always
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    image: wsi-client:1.0.0
+    container_name: deepzoom-client
+    volumes: 
+      - /home/ubuntu/docker_share/data:/data
+      - ./client/src:/app/src
+    ports:
+      - 5000:5000
+    extra_hosts:
+            - "host.docker.internal:host-gateway"
+
+    networks:
+      - web_net
+
+networks:
+  web_net:
+    driver: bridge
+    #attachable: true
+    external: true
+    #internal: true
